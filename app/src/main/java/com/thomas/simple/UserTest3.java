@@ -3,9 +3,10 @@ package com.thomas.simple;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
-import com.thomas.rxpreferences.CacheEntity;
-import com.thomas.rxpreferences.CacheField;
-import com.thomas.rxpreferences.CacheMode;
+
+import com.thomas.rxpersistence.CacheEntity;
+import com.thomas.rxpersistence.CacheField;
+import com.thomas.rxpersistence.CacheMode;
 
 import java.util.List;
 

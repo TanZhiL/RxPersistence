@@ -1,6 +1,7 @@
 package com.thomas.simple;
 
-import com.thomas.rxpreferences.SPEntity;
+
+import com.thomas.rxpersistence.SPEntity;
 
 /**
  * Author: Thomas.<br/>

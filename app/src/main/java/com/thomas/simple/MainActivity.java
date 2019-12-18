@@ -8,9 +8,9 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
-import com.thomas.rxpreferences.PersistenceParser;
-import com.thomas.rxpreferences.RxField;
-import com.thomas.rxpreferences.RxPersistence;
+import com.thomas.rxpersistence.PersistenceParser;
+import com.thomas.rxpersistence.RxField;
+import com.thomas.rxpersistence.RxPersistence;
 
 import java.lang.reflect.Type;
 

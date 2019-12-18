@@ -163,7 +163,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
                 }
                 isObject = true;
             }
-            ParameterizedTypeName rxfield = ParameterizedTypeName.get(ClassName.get("com.thomas.rxpreferences", "RxField"), type.box());
+            ParameterizedTypeName rxfield = ParameterizedTypeName.get(ClassName.get("com.thomas.rxpersistence", "RxField"), type.box());
             ParameterizedTypeName typeName = ParameterizedTypeName.get(ClassName.get("io.reactivex", "Observable"), rxfield);
             if (name.startsWith("set")) {
                 //setter
@@ -391,7 +391,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
                 }
                 isObject = true;
             }
-            ParameterizedTypeName rxfield = ParameterizedTypeName.get(ClassName.get("com.thomas.rxpreferences", "RxField"), type.box());
+            ParameterizedTypeName rxfield = ParameterizedTypeName.get(ClassName.get("com.thomas.rxpersistence", "RxField"), type.box());
             ParameterizedTypeName typeName = ParameterizedTypeName.get(ClassName.get("io.reactivex", "Observable"), rxfield);
             if (name.startsWith("set")) {
                 //setter
@@ -526,7 +526,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
                 .returns(String.class)
                 .addParameter(String.class, "key")
                 .addParameter(TypeName.BOOLEAN, "global")
-                .addStatement("return global ? key : $T.getUserToken() + key", ClassName.get("com.thomas.rxpreferences", "RxPersistence"))
+                .addStatement("return global ? key : $T.getUserToken() + key", ClassName.get("com.thomas.rxpersistence", "RxPersistence"))
                 .build();
 
         MethodSpec getRealFileNameMethodSpec = MethodSpec.methodBuilder("getRealFileName")
@@ -534,7 +534,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
                 .returns(String.class)
                 .addParameter(String.class, "key")
                 .addParameter(TypeName.BOOLEAN, "global")
-                .addStatement("return global ? key : $T.getGroupToken() + key", ClassName.get("com.thomas.rxpreferences", "RxPersistence"))
+                .addStatement("return global ? key : $T.getGroupToken() + key", ClassName.get("com.thomas.rxpersistence", "RxPersistence"))
                 .build();
 
         MethodSpec constructor = MethodSpec.constructorBuilder()
@@ -562,7 +562,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
         builder.addMethod(setMethodRx);
         builder.addMethod(getRealKeyMethodSpec);
         builder.addMethod(getRealFileNameMethodSpec);
-        builder.addField(ClassName.get("com.thomas.rxpreferences", "CacheDiskUtils"), "mDiskCache", Modifier.PRIVATE, Modifier.FINAL);
+        builder.addField(ClassName.get("com.thomas.rxpersistence", "CacheDiskUtils"), "mDiskCache", Modifier.PRIVATE, Modifier.FINAL);
         builder.addField(fieldSpec);
         if(prefix.length()>0){
             builder.addModifiers(Modifier.STATIC);
@@ -700,7 +700,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
                 .returns(String.class)
                 .addParameter(String.class, "key")
                 .addParameter(TypeName.BOOLEAN, "global")
-                .addStatement("return global ? key : $T.getUserToken() + key", ClassName.get("com.thomas.rxpreferences", "RxPersistence"))
+                .addStatement("return global ? key : $T.getUserToken() + key", ClassName.get("com.thomas.rxpersistence", "RxPersistence"))
                 .build();
 
         MethodSpec getRealFileNameMethodSpec = MethodSpec.methodBuilder("getRealFileName")
@@ -708,7 +708,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
                 .returns(String.class)
                 .addParameter(String.class, "key")
                 .addParameter(TypeName.BOOLEAN, "global")
-                .addStatement("return global ? key : $T.getGroupToken() + key", ClassName.get("com.thomas.rxpreferences", "RxPersistence"))
+                .addStatement("return global ? key : $T.getGroupToken() + key", ClassName.get("com.thomas.rxpersistence", "RxPersistence"))
                 .build();
 
         MethodSpec constructor = MethodSpec.constructorBuilder()
@@ -734,7 +734,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
         builder.addMethod(getCountMethodSpec);
         builder.addMethod(getRealKeyMethodSpec);
         builder.addMethod(getRealFileNameMethodSpec);
-        builder.addField(ClassName.get("com.thomas.rxpreferences", "CacheMemoryUtils"), "mMemoryCache", Modifier.PRIVATE, Modifier.FINAL);
+        builder.addField(ClassName.get("com.thomas.rxpersistence", "CacheMemoryUtils"), "mMemoryCache", Modifier.PRIVATE, Modifier.FINAL);
         builder.addField(fieldSpec);
         if(prefix.length()>0){
             builder.addModifiers(Modifier.STATIC);
@@ -862,7 +862,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
                 if (name.startsWith("set")) {
                     //setter
 
-                    ParameterizedTypeName rxfield = ParameterizedTypeName.get(ClassName.get("com.thomas.rxpreferences", "RxField"), type.box());
+                    ParameterizedTypeName rxfield = ParameterizedTypeName.get(ClassName.get("com.thomas.rxpersistence", "RxField"), type.box());
                     ParameterizedTypeName typeName = ParameterizedTypeName.get(ClassName.get("io.reactivex", "Observable"), rxfield);
 
                     String parameterName = executableElement.getParameters().get(0).getSimpleName().toString();
@@ -951,7 +951,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
                     methodSpecs.add(setMethod);
                 } else {
                     //getter
-                    ParameterizedTypeName rxfield = ParameterizedTypeName.get(ClassName.get("com.thomas.rxpreferences", "RxField"), type.box());
+                    ParameterizedTypeName rxfield = ParameterizedTypeName.get(ClassName.get("com.thomas.rxpersistence", "RxField"), type.box());
                     ParameterizedTypeName typeName = ParameterizedTypeName.get(ClassName.get("io.reactivex", "Observable"), rxfield);
                     MethodSpec setMethodRx = MethodSpec.methodBuilder(name + "Rx")
                             .addModifiers(Modifier.PUBLIC)
@@ -1061,7 +1061,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
 
             MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PRIVATE)
-                    .addStatement("mPreferences = $T.getContext().getSharedPreferences(" + String.format("getRealFileName(\"%s\",%b)", element.getSimpleName(), globalEntity) + ", 0)", ClassName.get("com.thomas.rxpreferences", "RxPersistence"))
+                    .addStatement("mPreferences = $T.getContext().getSharedPreferences(" + String.format("getRealFileName(\"%s\",%b)", element.getSimpleName(), globalEntity) + ", 0)", ClassName.get("com.thomas.rxpersistence", "RxPersistence"))
                     .addStatement("mEdit = mPreferences.edit()");
 
 
