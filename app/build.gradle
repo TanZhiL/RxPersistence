@@ -26,8 +26,10 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
-    implementation project(':rxpersistence')
-    annotationProcessor project(':rxpersistence-compiler')
+  //  implementation project(':rxpersistence')
+    implementation 'com.github.TanZhiL.RxPersistence:rxpersistence:0.0.1'
+    annotationProcessor 'com.github.TanZhiL.RxPersistence:rxpersistence-compiler:0.0.1'
+  //  annotationProcessor project(':rxpersistence-compiler')
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.0'
 }
