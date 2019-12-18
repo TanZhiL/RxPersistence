@@ -1,4 +1,4 @@
-package com.thomas.rxpreferences;
+package com.thomas.rxpersistence;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -11,22 +11,22 @@ import java.lang.annotation.Target;
  * GitHub: https://github.com/TanZhiL<br/>
  * CSDN: https://blog.csdn.net/weixin_42703445<br/>
  * Email: 1071931588@qq.com<br/>
- * Description:用于标记sp实体类成员变量
+ * Description:用于标记缓存实体类成员变量
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface SPField {
+public @interface CacheField {
     /**
-     * 是否加入sp中
+     * 是否加入缓存中
      * @return
      */
     boolean save() default true;
 
     /**
-     * 是否为commit 提交
+     * 缓存时长,-1表示永久
      * @return
      */
-    boolean commit() default false;
+    int saveTime() default -1;
 
     /**
      * 如果是true全局参数通过get(name1)或者get(name2)使用都是一样的,如果是false,那么字段名会带上token(token_fieldName)

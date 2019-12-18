@@ -1,4 +1,4 @@
-package com.thomas.rxpreferences;
+package com.thomas.rxpersistence;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;

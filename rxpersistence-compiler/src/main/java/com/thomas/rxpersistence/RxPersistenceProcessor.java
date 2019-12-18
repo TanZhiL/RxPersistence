@@ -1,4 +1,4 @@
-package com.thomas.rxpreferences;
+package com.thomas.rxpersistence;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
@@ -7,9 +7,13 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.thomas.rxpersistence.CacheEntity;
+import com.thomas.rxpersistence.CacheField;
+import com.thomas.rxpersistence.CacheMode;
+import com.thomas.rxpersistence.SPEntity;
+import com.thomas.rxpersistence.SPField;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashSet;
