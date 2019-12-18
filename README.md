@@ -209,7 +209,20 @@ public class Settings {
 
 ```
 
-
+### 致谢
+* 感谢所有开源库的大佬
+* https://github.com/Blankj/AndroidUtilCode
+* https://github.com/taoweiji/AptPreferences
+### 问题反馈
+欢迎加星，打call https://github.com/TanZhiL/RxPersistence
+* email：1071931588@qq.com
+### 关于作者
+谭志龙
+### 开源项目
+* 快速切面编程开源库 https://github.com/TanZhiL/OkAspectj
+* 高仿喜马拉雅听Android客户端 https://github.com/TanZhiL/Zhumulangma
+* 骨架屏弹性块 https://github.com/TanZhiL/SkeletonBlock
+* RxPersistence是基于面向对象设计的快速持久化框架 https://github.com/TanZhiL/RxPersistence
 
 
 
