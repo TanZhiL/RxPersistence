@@ -63,7 +63,7 @@ UserProfileSP.get().getAge();
 UserProfileSP.get().getAgeRx();
 
 ```
-从上面的简单例子可以看到，我们需要做SharePreferences持久化，仅仅定义一个简单的javabean类（UserProfileSP）并添加注解即可，这个框架会根据javabean生成带有持久化功能的SettingsPreference类，通过这个类就可以非常简单去保持或者获取数据，大大简化了SharePreferences的使用，也可以保持对象。
+从上面的简单例子可以看到，我们需要做SharePreferences持久化，仅仅定义一个简单的javabean类（UserProfileSP）并添加注解即可，这个框架会根据javabean生成带有持久化功能的UserProfile 类，通过这个类就可以非常简单去保持或者获取数据，大大简化了SharePreferences的使用，也可以保持对象。
 ### 项目地址
 https://github.com/TanZhiL/RxPersistence
 ### 一、配置项目
@@ -84,8 +84,8 @@ apply plugin: 'com.android.application'
 
 //...
 dependencies {
-     implementation 'com.github.TanZhiL.RxPersistence:rxpersistence:0.0.4'
-    annotationProcessor 'com.github.TanZhiL.RxPersistence:rxpersistence-compiler:0.0.4'
+     implementation 'com.github.TanZhiL.RxPersistence:rxpersistence:0.0.5'
+    annotationProcessor 'com.github.TanZhiL.RxPersistence:rxpersistence-compiler:0.0.5'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.0'
 }
@@ -128,7 +128,7 @@ public class UserTest {
 
 ### 四、初始化
 
-使用之前要进行初始化，建议在Application进行初始化，需要需要保存对象，还需要实现对象的解析器，这里使用Fastjson作为实例：
+使用之前要进行初始化，建议在Application进行初始化，需要需要保存对象，还需要实现对象的解析器，这里使用Gson作为实例：
 
 ```
 
