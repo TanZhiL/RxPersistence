@@ -552,7 +552,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
 
         TypeSpec.Builder builder = TypeSpec.classBuilder(typeElement.getSimpleName() + "DiskCache");
         builder.superclass(TypeName.get(typeElement.asType()));
-        builder.addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+        builder.addModifiers( Modifier.FINAL);
         builder.addMethods(methodSpecs);
         builder.addMethod(getMethodSpec2);
         builder.addMethod(constructor);
@@ -565,7 +565,9 @@ public class RxPersistenceProcessor extends AbstractProcessor {
         builder.addField(ClassName.get("com.thomas.rxpersistence", "CacheDiskUtils"), "mDiskCache", Modifier.PRIVATE, Modifier.FINAL);
         builder.addField(fieldSpec);
         if(prefix.length()>0){
-            builder.addModifiers(Modifier.STATIC);
+            builder.addModifiers(Modifier.PRIVATE,Modifier.STATIC);
+        }else {
+            builder.addModifiers(Modifier.PUBLIC);
         }
         return  builder.build();
     }
@@ -726,7 +728,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
         }
         TypeSpec.Builder builder = TypeSpec.classBuilder(typeElement.getSimpleName() + "MemoryCache");
         builder.superclass(TypeName.get(typeElement.asType()));
-        builder.addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+        builder.addModifiers(Modifier.FINAL);
         builder.addMethods(methodSpecs);
         builder.addMethod(getMethodSpec2);
         builder.addMethod(constructor);
@@ -737,7 +739,9 @@ public class RxPersistenceProcessor extends AbstractProcessor {
         builder.addField(ClassName.get("com.thomas.rxpersistence", "CacheMemoryUtils"), "mMemoryCache", Modifier.PRIVATE, Modifier.FINAL);
         builder.addField(fieldSpec);
         if(prefix.length()>0){
-            builder.addModifiers(Modifier.STATIC);
+            builder.addModifiers(Modifier.PRIVATE,Modifier.STATIC);
+        }else {
+            builder.addModifiers(Modifier.PUBLIC);
         }
 
         return builder.build();

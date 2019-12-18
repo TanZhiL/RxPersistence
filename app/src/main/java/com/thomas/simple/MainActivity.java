@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         RxPersistence.init(this, new PersistenceParser() {
             @Override
             public Object deserialize(Type clazz, String text) {
@@ -37,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                UserTest2DiskCache.get().setName(((EditText)findViewById(R.id.editText)).getText().toString());
+                UserTestMemoryCache.get().setName(((EditText)findViewById(R.id.editText)).getText().toString());
                 UserTest2DiskCache.get().setNameRx(((EditText)findViewById(R.id.editText)).getText().toString())
                         .subscribe();
             }
