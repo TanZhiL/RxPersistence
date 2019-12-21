@@ -279,7 +279,11 @@ public class RxPersistenceProcessor extends AbstractProcessor {
                                 "    });\n"))
                 .build();
 
-
+        MethodSpec resetMethodSpec = MethodSpec.methodBuilder("reset")
+                .addModifiers(Modifier.PUBLIC)
+                .returns(TypeName.VOID)
+                .addStatement("sInstance = null")
+                .build();
         MethodSpec constructor = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PRIVATE)
                 .addStatement(String.format("mDiskCache = %s.get()",typeElement.getSimpleName() + "DiskCache"))
@@ -300,6 +304,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
                 .addMethod(getDiskCountMethodSpec)
                 .addMethod(getDiskSizeMethodSpec)
                 .addMethod(getMemoryCountMethodSpec)
+                .addMethod(resetMethodSpec)
                 .addMethod(setMethodRx)
                 .addField(ClassName.get(getPackageName(typeElement)+"."+typeElement.getSimpleName()+"DoubleCache", typeElement.getSimpleName()+"DiskCache"), "mDiskCache", Modifier.PRIVATE, Modifier.FINAL)
                 .addField(ClassName.get(getPackageName(typeElement)+"."+typeElement.getSimpleName()+"DoubleCache", typeElement.getSimpleName()+"MemoryCache"), "mMemoryCache", Modifier.PRIVATE, Modifier.FINAL)
@@ -536,7 +541,11 @@ public class RxPersistenceProcessor extends AbstractProcessor {
                 .addParameter(TypeName.BOOLEAN, "global")
                 .addStatement("return global ? key : $T.getGroupToken() + key", ClassName.get("com.thomas.rxpersistence", "RxPersistence"))
                 .build();
-
+        MethodSpec resetMethodSpec = MethodSpec.methodBuilder("reset")
+                .addModifiers(Modifier.PUBLIC)
+                .returns(TypeName.VOID)
+                .addStatement("sInstance = null")
+                .build();
         MethodSpec constructor = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PRIVATE)
                 .addStatement("mDiskCache = CacheDiskUtils.getInstance(" + String.format("getRealFileName(\"%s\",%b)", prefix+typeElement.getSimpleName(), global) + "," + diskMaxSize + "," + diskMaxCout + ")")
@@ -559,6 +568,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
         builder.addMethod(clearMethodSpec);
         builder.addMethod(getCountMethodSpec);
         builder.addMethod(getSizeMethodSpec);
+        builder.addMethod(resetMethodSpec);
         builder.addMethod(setMethodRx);
         builder.addMethod(getRealKeyMethodSpec);
         builder.addMethod(getRealFileNameMethodSpec);
@@ -717,7 +727,11 @@ public class RxPersistenceProcessor extends AbstractProcessor {
                 .addModifiers(Modifier.PRIVATE)
                 .addStatement("mMemoryCache = CacheMemoryUtils.getInstance(" + String.format("getRealFileName(\"%s\",%b)", prefix+typeElement.getSimpleName(), global) + "," + memoryMaxCout + ")")
                 .build();
-
+        MethodSpec resetMethodSpec = MethodSpec.methodBuilder("reset")
+                .addModifiers(Modifier.PUBLIC)
+                .returns(TypeName.VOID)
+                .addStatement("sInstance = null")
+                .build();
         FieldSpec fieldSpec ;
         if(prefix.length()>0){
             fieldSpec = FieldSpec.builder(ClassName.get(getPackageName(typeElement)+"."+prefix,typeElement.getSimpleName() + "MemoryCache"), "sInstance", Modifier.PRIVATE, Modifier.VOLATILE, Modifier.STATIC)
@@ -733,6 +747,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
         builder.addMethod(getMethodSpec2);
         builder.addMethod(constructor);
         builder.addMethod(clearMethodSpec);
+        builder.addMethod(resetMethodSpec);
         builder.addMethod(getCountMethodSpec);
         builder.addMethod(getRealKeyMethodSpec);
         builder.addMethod(getRealFileNameMethodSpec);
@@ -1072,6 +1087,12 @@ public class RxPersistenceProcessor extends AbstractProcessor {
             FieldSpec fieldSpec = FieldSpec.builder(targetClassName, "sInstance", Modifier.PRIVATE, Modifier.VOLATILE, Modifier.STATIC)
                     //  .initializer("new $T()", targetClassName)
                     .build();
+
+            MethodSpec resetMethodSpec = MethodSpec.methodBuilder("reset")
+                    .addModifiers(Modifier.PUBLIC)
+                    .returns(TypeName.VOID)
+                    .addStatement("sInstance = null")
+                    .build();
             TypeSpec typeSpec = TypeSpec.classBuilder(element.getSimpleName() + "SP")
                     .superclass(TypeName.get(typeElement.asType()))
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
@@ -1082,6 +1103,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
                     .addMethod(setMethodRx)
                     .addMethod(getRealKeyMethodSpec)
                     .addMethod(getRealFileNameMethodSpec)
+                    .addMethod(resetMethodSpec)
                     .addField(ClassName.get("android.content", "SharedPreferences", "Editor"), "mEdit", Modifier.PRIVATE, Modifier.FINAL)
                     .addField(ClassName.get("android.content", "SharedPreferences"), "mPreferences", Modifier.PRIVATE, Modifier.FINAL)
                     .addField(fieldSpec)
@@ -1097,161 +1119,6 @@ public class RxPersistenceProcessor extends AbstractProcessor {
         }
     }
 
-    private List<TypeSpec> getInClassTypeSpec(Set<Element> inClassElements) {
-        List<TypeSpec> typeSpecs = new ArrayList<>();
-        for (Element element : inClassElements) {
-            TypeElement typeElement = elementUtils.getTypeElement(TypeName.get(element.asType()).toString());
-            boolean globalField = true;
-            SPField tmp = element.getAnnotation(SPField.class);
-            if (tmp != null && !tmp.global()) {
-                globalField = false;
-            }
-            List<? extends Element> members = elementUtils.getAllMembers(typeElement);
-            List<MethodSpec> methodSpecs = new ArrayList<>();
-            for (Element item : members) {
-
-                if (item instanceof ExecutableElement) {
-                    ExecutableElement executableElement = (ExecutableElement) item;
-                    String name = item.getSimpleName().toString();
-                    if (name.equals("getClass")) {
-                        continue;
-                    }
-                    //忽略final、static 方法
-                    if (executableElement.getModifiers().contains(Modifier.FINAL) || executableElement.getModifiers().contains(Modifier.STATIC)) {
-                        continue;
-                    }
-                    if (!name.startsWith("get") && !name.startsWith("is") && !name.startsWith("set")) {
-                        continue;
-                    }
-                    String fieldName = name.replaceFirst("get|is|set", "");
-                    fieldName = fieldName.substring(0, 1).toLowerCase() + fieldName.substring(1);
-
-                    Element fieldElement = getElement(members, fieldName);
-                    SPField annotation = item.getAnnotation(SPField.class);
-                    if (annotation != null && !annotation.save()) {
-                        continue;
-                    }
-                    //返回值类型
-                    TypeName type = TypeName.get(fieldElement.asType());
-
-
-                    if (name.startsWith("set")) {
-                        //调用的方法
-                        String modName;
-                        boolean isDouble = false;
-                        if (type.equals(TypeName.BOOLEAN)) {
-                            modName = "putBoolean";
-                        } else if (type.equals(TypeName.INT)) {
-                            modName = "putInt";
-                        } else if (type.equals(TypeName.DOUBLE)) {
-                            modName = "putFloat";
-                            isDouble = true;
-                        } else if (type.equals(TypeName.FLOAT)) {
-                            modName = "putFloat";
-                        } else if (type.equals(TypeName.LONG)) {
-                            modName = "putLong";
-                        } else {
-                            modName = "putString";
-                        }
-                        MethodSpec setMethod;
-
-                        //值
-                        String parameterName = executableElement.getParameters().get(0).getSimpleName().toString();
-
-                        if (annotation != null && annotation.commit()) {
-                            if (isDouble) {
-                                setMethod = MethodSpec.overriding(executableElement)
-                                        .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), (float)%s).commit()", modName, typeElement.getSimpleName() + "." + fieldName, globalField, parameterName)).build();
-                            } else {
-                                setMethod = MethodSpec.overriding(executableElement)
-                                        .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), %s).commit()", modName, typeElement.getSimpleName() + "." + fieldName, globalField, parameterName)).build();
-                            }
-                        } else {
-                            if (isDouble) {
-                                setMethod = MethodSpec.overriding(executableElement)
-                                        .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), (float)%s).apply()", modName, typeElement.getSimpleName() + "." + fieldName, globalField, parameterName)).build();
-                            } else {
-                                setMethod = MethodSpec.overriding(executableElement)
-                                        .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), %s).apply()", modName, typeElement.getSimpleName() + "." + fieldName, globalField, parameterName)).build();
-                            }
-                        }
-
-                   /*     MethodSpec setMethodRx;
-
-                        if (isDouble) {
-                            setMethodRx = MethodSpec.methodBuilder(name+"Rx")
-                                    .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), (float)%s).commit()", modName, typeElement.getSimpleName() + "." + fieldName, globalField, parameterName)).build();
-                        } else {
-                            setMethodRx = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), %s).commit()", modName, typeElement.getSimpleName() + "." + fieldName, globalField, parameterName)).build();
-                        }*/
-
-                        methodSpecs.add(setMethod);
-                        //   methodSpecs.add(setMethodRx);
-                    } else if (name.startsWith("get") || name.startsWith("is")) {
-                        String modName;
-                        boolean isDouble = false;
-                        if (type.equals(TypeName.BOOLEAN)) {
-                            modName = "getBoolean";
-                        } else if (type.equals(TypeName.INT)) {
-                            modName = "getInt";
-                        } else if (type.equals(TypeName.DOUBLE)) {
-                            modName = "getFloat";
-                            isDouble = true;
-                        } else if (type.equals(TypeName.FLOAT)) {
-                            modName = "getFloat";
-                        } else if (type.equals(TypeName.LONG)) {
-                            modName = "getLong";
-                        } else {
-                            modName = "getString";
-                        }
-
-
-                        if (isDouble) {
-                            MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("return mPreferences.%s(getRealKey(\"%s\",%b), (float)super.%s())", modName, typeElement.getSimpleName() + "." + fieldName, globalField, name))
-                                    .build();
-
-                            methodSpecs.add(setMethod);
-                        } else {
-                            MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("return mPreferences.%s(getRealKey(\"%s\",%b), super.%s())", modName, typeElement.getSimpleName() + "." + fieldName, globalField, name))
-                                    .build();
-
-                       /*     ParameterizedTypeName typeName=ParameterizedTypeName.get(ClassName.get("io.reactivex","Observable"),type);
-                            MethodSpec setMethodRx = MethodSpec.methodBuilder(name+"Rx")
-                                    .returns(typeName)
-                                    .addStatement("return Observable.create(new ObservableOnSubscribe<$T>() {",type)
-                                    //     .addStatement(String.format("return mPreferences.%s(getRealKey(\"%s\",%b), (float)super.%s())", modName, typeElement.getSimpleName() + "." + fieldName, globalField, name))
-                                    .build();*/
-                            methodSpecs.add(setMethod);
-                            // methodSpecs.add(setMethodRx);
-                        }
-
-                    }
-
-                }
-            }
-            TypeSpec typeSpec = TypeSpec.classBuilder(typeElement.getSimpleName() + "SP")
-                    .superclass(TypeName.get(element.asType()))
-                    .addModifiers(Modifier.PRIVATE)
-                    .addMethods(methodSpecs)
-                    .build();
-            typeSpecs.add(typeSpec);
-        }
-        return typeSpecs;
-    }
-
-
-    private <T extends Annotation> T getAnnotation(List<? extends Element> members, String fieldName, Class<T> aptFieldClass) {
-        for (Element item : members) {
-            if (item.getSimpleName().toString().equals(fieldName)) {
-                Annotation annotation = item.getAnnotation(aptFieldClass);
-                return (T) annotation;
-            }
-        }
-        return null;
-    }
 
     private Element getElement(List<? extends Element> members, String fieldName) {
         for (Element item : members) {

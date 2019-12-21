@@ -84,8 +84,8 @@ apply plugin: 'com.android.application'
 
 //...
 dependencies {
-     implementation 'com.github.TanZhiL.RxPersistence:rxpersistence:0.0.5'
-    annotationProcessor 'com.github.TanZhiL.RxPersistence:rxpersistence-compiler:0.0.5'
+     implementation 'com.github.TanZhiL.RxPersistence:rxpersistence:0.0.6'
+    annotationProcessor 'com.github.TanZhiL.RxPersistence:rxpersistence-compiler:0.0.6'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.0'
 }
