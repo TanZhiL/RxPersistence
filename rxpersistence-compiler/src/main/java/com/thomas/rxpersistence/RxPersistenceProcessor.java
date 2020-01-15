@@ -817,7 +817,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
                 // 检查是否有注解
                 SPField annotation = fieldElement.getAnnotation(SPField.class);
                 // 检查是否需要保存
-                if (annotation == null || !annotation.save()) {
+                if (annotation != null && !annotation.save()) {
                     continue;
                 }
 
