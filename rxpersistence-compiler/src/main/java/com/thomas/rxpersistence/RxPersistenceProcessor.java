@@ -817,7 +817,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
                 // 检查是否有注解
                 SPField annotation = fieldElement.getAnnotation(SPField.class);
                 // 检查是否需要保存
-                if (annotation != null && !annotation.save()) {
+                if (annotation == null || !annotation.save()) {
                     continue;
                 }
 
@@ -991,17 +991,25 @@ public class RxPersistenceProcessor extends AbstractProcessor {
 
                     if (isObject) {
                         TypeName className = ClassName.get(fieldElement.asType());
-                        MethodSpec setMethod = MethodSpec.overriding(executableElement)
+                     MethodSpec setMethod = MethodSpec.overriding(executableElement)
                                 .addStatement(String.format("String text = mPreferences.getString(getRealKey(\"%s\",%b), null)", fieldName, globalField))
                                 .addStatement("Object object = null")
-                                .addCode("if (text != null){\n" +
-                                        "   object = RxPersistence.getParser().deserialize($T.class,text);\n" +
+                                .addCode(String.format("if (text != null){\n" +
+                                        "   object = RxPersistence.getParser().deserialize" +
+                                        "(new %s<%s>() {}.getType(),text);\n" +
                                         "}\n" +
                                         "if (object != null){\n" +
-                                        "   return ($T) object;\n" +
-                                        "}\n", className, className)
+                                        "   return (%s) object;\n" +
+                                        "}\n", ClassName.get("com.google.gson.reflect", "TypeToken"), type.box(), className))
                                 .addStatement(String.format("return super.%s()", executableElement.getSimpleName()))
                                 .build();
+
+                     /*   MethodSpec   setMethod = MethodSpec.overriding(executableElement)
+                                .addStatement(String.format("return ((%s)RxPersistence.getParser().deserialize(\n" +
+                                        "new %s<%s>() {}.getType(),mDiskCache.%s(getRealKey(\"%s\",%b),\n" +
+                                        "RxPersistence.getParser().serialize(super.%s()))))", type.box(), ClassName.get("com.google.gson.reflect", "TypeToken"), type.box(), modName, fieldName, globalField, name))
+                                .addStatement(String.format("return super.%s()", executableElement.getSimpleName()))
+                                .build();*/
                         methodSpecs.add(setMethod);
 
 
