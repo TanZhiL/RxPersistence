@@ -292,6 +292,13 @@ public class RxPersistenceProcessor extends AbstractProcessor {
 
         FieldSpec fieldSpec = FieldSpec.builder(targetClassName, "sInstance", Modifier.PRIVATE, Modifier.VOLATILE, Modifier.STATIC)
                 .build();
+
+        MethodSpec.Builder resolve = MethodSpec.methodBuilder("resolve")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(ClassName.get(typeElement),"spEntity")
+                .addStatement(typeElement.getSimpleName() + "MemoryCache.get().resolve(spEntity)")
+                .addStatement(typeElement.getSimpleName() + "DiskCache.get().resolve(spEntity)")
+                .returns(TypeName.VOID);
         TypeSpec typeSpec = TypeSpec.classBuilder(typeElement.getSimpleName() + "DoubleCache")
                 .superclass(TypeName.get(typeElement.asType()))
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
@@ -300,6 +307,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
                 .addType(processDiskCache(typeElement.getSimpleName() + "DoubleCache",typeElement,diskMaxCount,diskMaxSize,global))
                 .addMethod(getMethodSpec2)
                 .addMethod(constructor)
+                .addMethod(resolve.build())
                 .addMethod(clearMethodSpec)
                 .addMethod(getDiskCountMethodSpec)
                 .addMethod(getDiskSizeMethodSpec)
@@ -317,6 +325,11 @@ public class RxPersistenceProcessor extends AbstractProcessor {
         // 获取该类的全部成员，包括
         List<? extends Element> members = elementUtils.getAllMembers(typeElement);
         List<MethodSpec> methodSpecs = new ArrayList<>();
+        MethodSpec.Builder resolve = MethodSpec.methodBuilder("resolve")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(ClassName.get(typeElement),"spEntity")
+                .returns(TypeName.VOID);
+        List<String> fileds=new ArrayList<>();
         for (Element element : members) {
             // 忽略除了成员方法外的元素
             if (!(element instanceof ExecutableElement)) {
@@ -400,6 +413,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
             ParameterizedTypeName typeName = ParameterizedTypeName.get(ClassName.get("io.reactivex", "Observable"), rxfield);
             if (name.startsWith("set")) {
                 //setter
+                fileds.add(name.substring(3));
                 String parameterName = executableElement.getParameters().get(0).getSimpleName().toString();
                 MethodSpec setMethod;
                 if (isObject) {
@@ -558,13 +572,16 @@ public class RxPersistenceProcessor extends AbstractProcessor {
             fieldSpec = FieldSpec.builder(targetClassName, "sInstance", Modifier.PRIVATE, Modifier.VOLATILE, Modifier.STATIC)
                     .build();
         }
-
+        for (String field:fileds){
+            resolve.addStatement("this.set"+field+"("+"spEntity.get"+field+"())");
+        }
         TypeSpec.Builder builder = TypeSpec.classBuilder(typeElement.getSimpleName() + "DiskCache");
         builder.superclass(TypeName.get(typeElement.asType()));
         builder.addModifiers( Modifier.FINAL);
         builder.addMethods(methodSpecs);
         builder.addMethod(getMethodSpec2);
         builder.addMethod(constructor);
+        builder.addMethod(resolve.build());
         builder.addMethod(clearMethodSpec);
         builder.addMethod(getCountMethodSpec);
         builder.addMethod(getSizeMethodSpec);
@@ -586,6 +603,11 @@ public class RxPersistenceProcessor extends AbstractProcessor {
         // 获取该类的全部成员，包括
         List<? extends Element> members = elementUtils.getAllMembers(typeElement);
         List<MethodSpec> methodSpecs = new ArrayList<>();
+        MethodSpec.Builder resolve = MethodSpec.methodBuilder("resolve")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(ClassName.get(typeElement),"spEntity")
+                .returns(TypeName.VOID);
+        List<String> fileds=new ArrayList<>();
         for (Element element : members) {
             // 忽略除了成员方法外的元素
             if (!(element instanceof ExecutableElement)) {
@@ -640,6 +662,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
             if (name.startsWith("set")) {
                 //setter
 
+                fileds.add(name.substring(3));
                 ParameterizedTypeName typeName = ParameterizedTypeName.get(ClassName.get("io.reactivex", "Observable"), type.box());
                 String parameterName = executableElement.getParameters().get(0).getSimpleName().toString();
 
@@ -740,12 +763,17 @@ public class RxPersistenceProcessor extends AbstractProcessor {
             fieldSpec = FieldSpec.builder(targetClassName, "sInstance", Modifier.PRIVATE, Modifier.VOLATILE, Modifier.STATIC)
                     .build();
         }
+
+        for (String field:fileds){
+            resolve.addStatement("this.set"+field+"("+"spEntity.get"+field+"())");
+        }
         TypeSpec.Builder builder = TypeSpec.classBuilder(typeElement.getSimpleName() + "MemoryCache");
         builder.superclass(TypeName.get(typeElement.asType()));
         builder.addModifiers(Modifier.FINAL);
         builder.addMethods(methodSpecs);
         builder.addMethod(getMethodSpec2);
         builder.addMethod(constructor);
+        builder.addMethod(resolve.build());
         builder.addMethod(clearMethodSpec);
         builder.addMethod(resetMethodSpec);
         builder.addMethod(getCountMethodSpec);
@@ -778,6 +806,11 @@ public class RxPersistenceProcessor extends AbstractProcessor {
             // 获取该类的全部成员，包括
             List<? extends Element> members = elementUtils.getAllMembers(typeElement);
             List<MethodSpec> methodSpecs = new ArrayList<>();
+            MethodSpec.Builder resolve = MethodSpec.methodBuilder("resolve")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(ClassName.get(typeElement),"spEntity")
+                    .returns(TypeName.VOID);
+            List<String> fileds=new ArrayList<>();
             for (Element item : members) {
                 // 忽略除了成员方法外的元素
                 if (!(item instanceof ExecutableElement)) {
@@ -880,7 +913,7 @@ public class RxPersistenceProcessor extends AbstractProcessor {
 
                 if (name.startsWith("set")) {
                     //setter
-
+                    fileds.add(name.substring(3));
                     ParameterizedTypeName rxfield = ParameterizedTypeName.get(ClassName.get("com.thomas.rxpersistence", "RxField"), type.box());
                     ParameterizedTypeName typeName = ParameterizedTypeName.get(ClassName.get("io.reactivex", "Observable"), rxfield);
 
@@ -1101,12 +1134,16 @@ public class RxPersistenceProcessor extends AbstractProcessor {
                     .returns(TypeName.VOID)
                     .addStatement("sInstance = null")
                     .build();
+            for (String field:fileds){
+                resolve.addStatement("this.set"+field+"("+"spEntity.get"+field+"())");
+            }
             TypeSpec typeSpec = TypeSpec.classBuilder(element.getSimpleName() + "SP")
                     .superclass(TypeName.get(typeElement.asType()))
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addMethods(methodSpecs)
                     .addMethod(getMethodSpec2)
                     .addMethod(constructor.build())
+                    .addMethod(resolve.build())
                     .addMethod(clearMethodSpec)
                     .addMethod(setMethodRx)
                     .addMethod(getRealKeyMethodSpec)
